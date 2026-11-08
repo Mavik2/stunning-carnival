@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сундук знаний — пиратская игра</title>
+<style>
+:root{--paper:#fff0ce;--ink:#623719;--wood:#60351b;--wood2:#8b552c;--gold:#ffc94a;--sea:#087fae;--green:#27834b;--red:#b93228}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  color:#fff4d5;
+  font-family:"Segoe UI",system-ui,sans-serif;
+  background-image:url('picture/фон.jpg');
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
+  background-repeat:no-repeat;
+  overflow-x:hidden
+}
+button,input{font:inherit}
+button{cursor:pointer;font-weight:800;border:0;border-radius:10px;padding:11px 15px;transition:transform .16s,filter .16s,box-shadow .16s}
+button:hover{filter:brightness(1.08)}
+button:active{transform:translateY(2px)}
+.app{position:relative;z-index:1;width:min(1250px,100%);margin:auto;padding:18px 22px 105px}
+header,.wood-panel{background:repeating-linear-gradient(2deg,transparent 0 8px,rgba(35,15,4,.12) 9px 11px),linear-gradient(180deg,#966036,#70401f 50%,#4c2815);border:4px solid #d5a253;border-radius:16px;box-shadow:0 7px 0 #321a0d,0 12px 22px #0f1e2333,inset 0 2px #ffdda466}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 20px;margin-bottom:22px}
+.header-brand{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0}
+h1{font-size:clamp(1.15rem,3vw,1.65rem);text-shadow:0 2px #321a0d}
+.header-companion{display:flex;align-items:center;gap:9px;min-width:0;padding:2px 6px;color:#fff0ce;background:transparent;border:0;box-shadow:none;font-weight:900;cursor:pointer;text-shadow:0 2px 4px #241207}
+.header-companion img{width:48px;height:48px;flex:0 0 48px;object-fit:cover;border:2px solid #d5a253;background:#fff0ce;border-radius:50%;filter:drop-shadow(0 3px 4px #0008)}
+.header-companion-name{max-width:190px;overflow-wrap:anywhere;white-space:normal;line-height:1.15;font-size:.9rem;text-align:left}
+.header-companion:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.header-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.coins{background:linear-gradient(#ffe994,#f2ad2e);border:3px solid #b87925;color:#653513;font-weight:900;padding:7px 14px;border-radius:22px;box-shadow:inset 0 2px #fff7c7,0 3px #4c2815;white-space:nowrap}
+.btn-primary{background:linear-gradient(#8c5529,#603518);color:#fff0ce;border:2px solid #d39a4d;box-shadow:0 3px #3f2411}
+.btn-gold{background:linear-gradient(#ffe681,#f4b52e);color:#623719;border:2px solid #a96b2b;box-shadow:0 3px #784718}
+.btn-ghost{background:linear-gradient(180deg,#e8f7ff,#bfe8f5);color:#06445a;border:2px solid #147fa0;box-shadow:0 3px #07516f;text-shadow:none}
+.btn-reset{background:linear-gradient(#e86b5c,#b93228);color:#fff;border:2px solid #8f2018;box-shadow:0 3px #6a130d;font-size:1rem;padding:10px 12px}
+.screen{display:none;animation:fade .25s ease}.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.class-selector{padding:16px;margin-bottom:22px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.class-selector .label{width:100%;text-align:center;font-weight:900;margin-bottom:4px}
+.class-btn{position:relative;background:linear-gradient(#ffe681,#f4b52e);color:#623719;border:3px solid #a96b2b;box-shadow:0 4px #784718,inset 0 2px #fff2a9}
+.class-btn.active{background:linear-gradient(#7be08e,#2fa253);color:white;border-color:#165b2b;box-shadow:0 4px #0e3e1d,0 0 14px #50dc7866}
+.class-btn.disabled{background:linear-gradient(#8a7f68,#6a6153);color:#3d3227;opacity:.8}
+.class-btn .dev-tag{display:block;font-size:.6rem;margin-top:2px}
+
+/* ===== КАРТА С НОВЫМИ ОСТРОВАМИ ===== */
+.map{
+  min-height:490px;
+  padding:34px 16px;
+  display:flex;
+  gap:clamp(15px,3vw,35px);
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  border-radius:24px;
+  border:none;
+  overflow:hidden;
+  background:transparent;
+  box-shadow:none;
+}
+
+.island{
+  position:relative;
+  width:clamp(240px, 30vw, 360px);
+  aspect-ratio: 3 / 2;
+  border:0;
+  background:transparent;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  filter:drop-shadow(0 15px 15px rgba(0,0,0,0.5));
+  transition:transform .25s ease, filter .25s ease;
+  cursor:pointer;
+  outline:none;
+}
+
+.island img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  transition: transform .25s ease;
+}
+
+.island:hover{
+  transform: translateY(-8px);
+  filter:drop-shadow(0 25px 20px rgba(0,0,0,0.7));
+}
+.island:hover img {
+  transform: scale(1.03);
+}
+
+.island .island-title {
+  position: absolute;
+  bottom: 5%;
+  padding: 8px 24px;
+  background: repeating-linear-gradient(0deg,transparent 0 7px,#2d14061f 8px 9px),linear-gradient(#a96b32,#683a1c);
+  border: 3px solid #d99c4b;
+  border-radius: 10px;
+  box-shadow: 0 6px #321a0d, inset 0 2px #dba66b;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  font-weight: 900;
+  color: #fff4d8;
+  text-shadow: 0 2px 3px #38200e;
+  white-space: nowrap;
+  transition: transform .25s ease;
+}
+.island:hover .island-title {
+  transform: scale(1.05);
+}
+
+.breadcrumb{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:15px}
+.breadcrumb button{color:#ffffff;background:linear-gradient(180deg,#147fa0,#07516f);border:2px solid #b9e9f4;padding:9px 14px;text-shadow:0 1px 2px #063344;box-shadow:0 3px #04394d}.breadcrumb button:hover{background:linear-gradient(180deg,#239bbd,#086482)}
+.island-header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;margin-bottom:16px}
+.island-name{font-size:1.2rem;font-weight:900}.progress-badge{margin-left:auto;background:linear-gradient(#ffe47a,#f9ad23);color:#623719;padding:5px 12px;border-radius:20px;font-weight:900;border:2px solid #a96b2b}
+.subtle-label{margin:12px 0;color:#fff2cf;font-weight:700}
+.difficulty-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.levels-path{position:relative;padding:17px 14px;border-radius:20px;background:radial-gradient(ellipse at 50% 0%,#ffe0972e,transparent 55%),repeating-linear-gradient(92deg,transparent 0 22px,#2d160f0f 23px 25px),linear-gradient(145deg,#a77a49,#79502e 55%,#57351e);border:4px solid #d8a453;box-shadow:inset 0 3px #ffe1a659,inset 0 -10px 18px #24120740,0 8px #39200e;overflow:hidden}
+.levels{position:relative;display:grid;gap:10px 6px;z-index:2}
+.level{position:relative;aspect-ratio:1;width:100%;max-width:66px;margin:auto;border-radius:50%;border:3px solid #70421f;background:radial-gradient(circle at 35% 30%,#fff3c4,#e0b670 70%,#b5873f);color:#5b3a1e;font-weight:900;font-size:1.15rem;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 5px #3e250f,inset 0 2px #fff9e0;text-shadow:0 1px #fff6dd}
+.level small{font-size:.6rem;font-weight:700;margin-top:2px;text-shadow:none}
+.level.done{background:radial-gradient(circle at 35% 25%,#a4f5a9,#35ad59 65%,#197039);color:white;border-color:#165b2b;box-shadow:0 5px #0e3e1d,inset 0 2px #b9ffcb,0 0 16px #50dc7850}
+.level.current{animation:pulse 1.6s ease-in-out infinite;border-color:#ffd24a;box-shadow:0 5px #3e250f,inset 0 2px #fff9e0,0 0 24px 6px #ffcf46a6}
+.level.locked{background:radial-gradient(circle at 35% 30%,#b6ab97,#8a7f68 70%,#6a6153);color:#4a4335;cursor:not-allowed}
+.level-companion{position:absolute;bottom:-6px;right:-6px;width:26px;height:26px;border-radius:50%;background:#fff;border:2px solid #8a5428;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.level-companion img{width:100%;height:100%;object-fit:cover}
+@keyframes pulse{50%{transform:scale(1.06)}}
+.levels-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}.levels-svg path{fill:none;stroke:#f9e9b8;stroke-width:.9;stroke-dasharray:2 2;opacity:.85}
+.task-card,.modal-box{background:repeating-linear-gradient(0deg,transparent 0 25px,#744d2309 26px 27px),linear-gradient(145deg,#fff6df,#f0d6a0);color:#623719;border:4px solid #8a5428;border-radius:20px;box-shadow:0 9px #43240f,0 18px 30px #0003,inset 0 2px #fffdf3}
+.task-card{padding:clamp(18px,4vw,32px)}
+
+/* ===== СПУТНИК СЛЕВА ОТ ЗАДАНИЯ ===== */
+.task-main{
+  display:flex;
+  gap:clamp(14px,3vw,28px);
+  align-items:flex-start;
+}
+.task-side{
+  flex:0 0 clamp(160px, 20vw, 220px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+}
+.companion-full{
+  width:100%;
+  max-height:280px;
+  object-fit:contain;
+  object-position:bottom center;
+  border-radius:16px;
+  background:radial-gradient(ellipse at 50% 100%,#e8c98a,#f7e6bd 70%);
+  border:3px solid #b9813a;
+  box-shadow:0 4px #70421f, inset 0 2px #fffdf5;
+  padding:6px;
+  filter:drop-shadow(0 6px 6px #0003);
+  transition:transform .2s ease;
+}
+.companion-full:hover{ transform:scale(1.03); }
+.companion-full-placeholder{
+  width:100%;
+  height:200px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:4rem;
+  border-radius:16px;
+  background:radial-gradient(ellipse at 50% 100%,#e8c98a,#f7e6bd 70%);
+  border:3px solid #b9813a;
+  box-shadow:0 4px #70421f, inset 0 2px #fffdf5;
+}
+.companion-name-tag{
+  font-weight:900;
+  color:#4c2815;
+  font-size:1rem;
+  text-align:center;
+  background:linear-gradient(#ffe681,#f4b52e);
+  border:2px solid #a96b2b;
+  border-radius:20px;
+  padding:3px 14px;
+  box-shadow:0 2px #784718;
+  white-space:nowrap;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Облачко с речью под спутником */
+.companion-bubble{
+  position:relative;
+  width:100%;
+  min-height:110px;
+  background:linear-gradient(145deg,#fffdf6,#f7e8c4);
+  border:3px solid #b9813a;
+  border-radius:18px;
+  padding:14px 16px;
+  color:#4c2815;
+  font-weight:600;
+  font-size:.98rem;
+  line-height:1.45;
+  box-shadow:0 4px #8a5428, inset 0 2px #fffdf5;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.companion-bubble::before{
+  content:"";
+  position:absolute;
+  top:-16px;
+  left:40px;
+  width:0;height:0;
+  border-left:14px solid transparent;
+  border-right:14px solid transparent;
+  border-bottom:18px solid #b9813a;
+}
+.companion-bubble::after{
+  content:"";
+  position:absolute;
+  top:-10px;
+  left:42px;
+  width:0;height:0;
+  border-left:12px solid transparent;
+  border-right:12px solid transparent;
+  border-bottom:15px solid #fffdf6;
+}
+.companion-bubble.speech-ok{
+  background:linear-gradient(145deg,#e6f7ea,#d4f0da);
+  border-color:#27834b;
+  box-shadow:0 4px #165b2b, inset 0 2px #f4fff6;
+}
+.companion-bubble.speech-ok::before{ border-bottom-color:#27834b; }
+.companion-bubble.speech-ok::after{ border-bottom-color:#e6f7ea; }
+.companion-bubble.speech-bad{
+  background:linear-gradient(145deg,#fbe6e3,#f7d2cc);
+  border-color:#b93228;
+  box-shadow:0 4px #6a130d, inset 0 2px #fff5f3;
+}
+.companion-bubble.speech-bad::before{ border-bottom-color:#b93228; }
+.companion-bubble.speech-bad::after{ border-bottom-color:#fbe6e3; }
+.companion-bubble .bubble-text{ font-size:1rem; }
+
+/* Задание справа */
+.task-content{
+  flex:1;
+  min-width:0;
+}
+
+/* Адаптив: на узких экранах спутник сверху, задание снизу */
+@media(max-width:820px){
+  .task-main{ flex-direction:column; align-items:center; }
+  .task-side{ flex:0 0 auto; width:min(260px,90%); }
+  .companion-full{ max-height:240px; }
+  .companion-full-placeholder{ height:160px; }
+  .companion-bubble{ width:100%; }
+  .task-content{ width:100%; }
+}
+
+/* ===== КАРТИНКА ЗАДАНИЯ ===== */
+.task-img {
+  display: block;
+  max-width: 100%;
+  max-height: 460px;
+  margin: 0 auto;
+  border-radius: 14px;
+  border: 4px solid #8a5428;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+  background: #fff;
+}
+
+/* ===== СТРОКА ОТВЕТА ===== */
+.answer-row{
+  display:flex;
+  gap:12px;
+  align-items:stretch;
+  margin-bottom:14px;
+  margin-top:16px;
+}
+.answer-row input{
+  flex:1;
+  min-width:0;
+  padding:14px 16px;
+  font-size:1.1rem;
+  font-weight:600;
+  border-radius:12px;
+  border:3px solid #8a5428;
+  background:#fff;
+  color:#241407;
+  box-shadow:inset 0 2px 5px #4126101a;
+  line-height:1.2;
+}
+.answer-row input::placeholder{color:#9a7f63;opacity:1;font-weight:500}
+.answer-row input:focus{
+  outline:none;
+  border-color:#d29b35;
+  box-shadow:0 0 0 4px #f5bd4838, inset 0 2px 5px #4126101a;
+}
+.answer-row .btn-primary{
+  flex:0 0 auto;
+  padding:0 28px;
+  font-size:1.05rem;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+}
+@media(max-width:520px){
+  .answer-row{flex-direction:column;}
+  .answer-row .btn-primary{padding:12px 20px;}
+}
+
+/* ===== КНОПКИ ПОДСКАЗОК ===== */
+.task-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:6px;
+}
+.task-actions button{
+  flex:1 1 auto;
+  min-width:150px;
+}
+
+.feedback{margin-top:14px;font-weight:800;min-height:1.4em}.feedback.ok{color:var(--green)}.feedback.bad{color:var(--red)}
+.task-meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:.88rem;opacity:.75;margin-bottom:12px}
+.task-question{font-size:clamp(1.15rem,2.5vw,1.5rem);font-weight:800;line-height:1.6;margin-bottom:18px}
+
+/* ===== ЕЖЕДНЕВНЫЙ СУНДУК ===== */
+.chest{
+  position:fixed;
+  right:20px;
+  bottom:18px;
+  width:82px;
+  height:76px;
+  border-radius:16px;
+  background:linear-gradient(#b97837,#6b391b);
+  border:4px solid #e0aa4e;
+  color:#fff0c7;
+  font-size:2rem;
+  box-shadow:0 7px #42240f,0 10px 22px #0004,inset 0 2px #e3b36a;
+  z-index:5;
+  animation:bounce 1.8s infinite;
+}
+.chest.pulse-off{
+  animation:none;
+  opacity:.55;
+  filter:grayscale(.7);
+}
+@keyframes bounce{50%{transform:translateY(-6px)}}
+
+
+/* Ежедневная рулетка слева от ежедневного задания */
+.wheel-btn{position:fixed;left:18px;bottom:18px;width:82px;height:76px;border-radius:50%;padding:4px;background:conic-gradient(#ffe681,#f4b52e,#fff0a8,#d58a25,#ffe681);border:4px solid #fff0a8;color:#623719;font-size:2rem;box-shadow:0 7px #42240f,0 10px 22px #0004;z-index:5;animation:wheelGlow 2s infinite}
+.wheel-btn.pulse-off{animation:none;opacity:.55;filter:grayscale(.7)}
+@keyframes wheelGlow{50%{transform:scale(1.06)}}
+.wheel-stage{position:relative;width:min(78vw,340px);aspect-ratio:1;margin:18px auto 22px}
+.wheel-disc{width:100%;height:100%;border-radius:50%;border:8px solid #8a5428;box-shadow:0 8px 0 #43240f, inset 0 0 0 4px #fff1bd; background:conic-gradient(#ffcf4d 0deg 60deg,#e86b38 60deg 120deg,#6dbb83 120deg 180deg,#6b9de0 180deg 240deg,#c18bd9 240deg 300deg,#f3a9b9 300deg 360deg);display:flex;align-items:center;justify-content:center;transition:transform 4.2s cubic-bezier(.12,.72,.12,1);transform:rotate(0deg);}
+.wheel-disc:before{content:"🎁";display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:#fff2bd;border:5px solid #8a5428;font-size:2rem;box-shadow:0 3px #43240f}
+.wheel-labels{position:absolute;inset:0;border-radius:50%;pointer-events:none;font-weight:900;color:#45220d;text-shadow:0 1px #fff9d7}
+.wheel-labels span{position:absolute;left:50%;top:50%;width:86px;margin-left:-43px;margin-top:-12px;text-align:center;font-size:clamp(.68rem,2.5vw,.86rem)}
+.wheel-pointer{position:absolute;z-index:2;top:-8px;left:calc(50% - 17px);width:0;height:0;border-left:17px solid transparent;border-right:17px solid transparent;border-top:35px solid #7e1d18;filter:drop-shadow(0 2px 1px #fff3c6)}
+.wheel-btn:disabled{cursor:wait;filter:grayscale(.3)}
+@media(max-width:720px){.wheel-btn{width:66px;height:66px;left:12px;bottom:12px;font-size:1.7rem}.chest{width:66px;height:66px}}
+
+/* ===== МОДАЛЬНОЕ ОКНО (общее) ===== */
+.modal{position:fixed;inset:0;background:#081824b8;display:none;justify-content:center;align-items:center;padding:20px;z-index:10;backdrop-filter:blur(7px)}
+.modal.open{display:flex}
+.modal-box{max-width:900px;width:100%;padding:10px;text-align:center;max-height:95vh;overflow-y:auto;position:relative;border:none;background:transparent;box-shadow:none}
+
+/* ===== МАГАЗИН С ВАШИМ ФОНОМ (как было) ===== */
+.shop-container {
+  background-image: url('picture/магазин_фон.jpg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  aspect-ratio: 1.5 / 1;
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.shop-grid {
+  position: absolute;
+  top: 31.5%; 
+  left: 21%;
+  width: 58%;
+  height: 59%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 4% 4%;
+  padding: 1%;
+}
+.shop-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  transition: transform 0.2s;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 2px dashed rgba(138, 84, 40, 0.3);
+}
+.shop-slot:focus-visible{outline:3px solid #07516f;outline-offset:2px}
+.shop-slot:hover { 
+  transform: scale(1.05); 
+  z-index: 2; 
+  background: rgba(255, 255, 255, 0.7);
+  border-color: #8a5428;
+}
+.shop-slot img {
+  width: 70%;
+  height: 70%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #8a5428;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  background: #fff;
+}
+.shop-slot .s-name {
+  font-family: 'Georgia', serif;
+  font-weight: 900;
+  font-size: clamp(0.7rem, 1.2vw, 1rem);
+  color: #3b1f07;
+  text-align: center;
+  line-height: 1.1;
+  margin-top: 4px;
+  max-width: 100%;
+}
+.shop-slot .s-cost {
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  background: #ffc94a;
+  border: 2px solid #8a5428;
+  border-radius: 12px;
+  padding: 2px 6px;
+  font-size: clamp(0.6rem, 0.9vw, 0.8rem);
+  font-weight: 900;
+  color: #4c2815;
+  box-shadow: 0 2px #5b3a1e;
+}
+.shop-slot.locked { opacity: 0.8; }
+.shop-slot.locked img { filter: grayscale(0.7) brightness(0.8); }
+.shop-slot.selected { 
+  box-shadow: inset 0 0 15px 5px rgba(255, 210, 74, 0.6);
+  border: 3px solid #ffd24a;
+}
+.shop-slot.selected::after {
+  content: "⭐";
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  font-size: clamp(1.2rem, 2vw, 1.8rem);
+  filter: drop-shadow(0 2px 2px #000);
+}
+
+.shop-close-btn {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #b93228;
+  color: #fff;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px #601b16;
+  cursor: pointer;
+  border: 2px solid #fff;
+  z-index: 10;
+}
+.shop-close-btn:hover { transform: scale(1.1); }
+
+/* ===== ЕЖЕДНЕВНОЕ ЗАДАНИЕ: контрастный текст ===== */
+.daily-card{max-width:560px;width:100%;margin:0 auto;padding:clamp(20px,4vw,32px);text-align:center;color:#4c2815;background:repeating-linear-gradient(0deg,transparent 0 25px,#744d2309 26px 27px),linear-gradient(145deg,#fff9e9,#f2d9a5);border:4px solid #8a5428;border-radius:20px;box-shadow:0 9px #43240f,0 18px 30px #0005,inset 0 2px #fffdf3}
+.daily-card h3{font-size:clamp(1.3rem,4vw,1.8rem);line-height:1.3;color:#4c2815;text-shadow:0 1px #fff2c9;margin-bottom:14px}
+.daily-card p{font-size:clamp(1rem,2.5vw,1.15rem);font-weight:800;line-height:1.55;color:#4c2815;margin:12px 0 18px}
+.daily-card input{display:block;width:100%;padding:13px 14px;margin-bottom:14px;border:3px solid #8a5428;border-radius:12px;background:#fff;color:#241407;font-size:1rem;font-weight:700}
+.daily-card input::placeholder{color:#705b48;opacity:1}
+.daily-card input:focus{outline:3px solid #ffc94a;outline-offset:2px}
+.daily-card #dailyFb{min-height:1.5em;font-weight:900;margin-bottom:14px}
+.daily-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.daily-img{display:block;width:100%;max-width:420px;max-height:360px;object-fit:contain;margin:0 auto 16px;border:0!important;border-radius:12px;background:transparent!important;box-shadow:0 8px 20px rgba(0,0,0,.22);filter:drop-shadow(0 3px 5px #0002)}
+
+/* ===== КАРТОЧКА ПЕРСОНАЖА ===== */
+.companion-card{
+  display:flex;
+  gap:20px;
+  background:repeating-linear-gradient(0deg,transparent 0 25px,#744d2309 26px 27px),linear-gradient(145deg,#fff6df,#f0d6a0);
+  border:4px solid #8a5428;
+  border-radius:20px;
+  box-shadow:0 9px #43240f,0 18px 30px #0003,inset 0 2px #fffdf3;
+  padding:22px;
+  max-width:720px;
+  width:100%;
+  position:relative;
+  text-align:left;
+  color:#623719;
+  max-height:92vh;
+  overflow-y:auto;
+}
+.companion-card-close{
+  position:absolute;top:10px;left:12px;
+  cursor:pointer;font-weight:900;color:#8a5428;
+  background:#fff0ce;border:2px solid #8a5428;border-radius:10px;
+  padding:5px 10px;font-size:.85rem;
+  z-index:2;
+}
+.companion-card-close:hover{filter:brightness(1.05)}
+.companion-card-img{
+  flex:0 0 240px;
+  display:flex;align-items:flex-end;justify-content:center;
+  background:radial-gradient(ellipse at 50% 100%,#e8c98a,#f7e6bd 70%);
+  border:3px solid #b9813a;border-radius:16px;
+  box-shadow:inset 0 2px #fffdf5,0 4px #70421f;
+  overflow:hidden;min-height:320px;
+}
+.companion-card-img img{
+  width:100%;height:100%;max-height:420px;
+  object-fit:contain;object-position:bottom center;
+  filter:drop-shadow(0 6px 6px #0003);
+}
+.companion-card-info{flex:1;display:flex;flex-direction:column;gap:10px;padding-top:30px}
+.companion-card-info h3{font-size:1.5rem;color:#4c2815;margin:0}
+.companion-role{
+  display:inline-block;align-self:flex-start;
+  background:linear-gradient(#ffe681,#f4b52e);color:#623719;
+  border:2px solid #a96b2b;border-radius:20px;
+  padding:3px 12px;font-weight:900;font-size:.8rem;
+}
+.companion-card-info p{line-height:1.5;font-size:1rem;margin:0}
+.companion-status{font-weight:900;color:#8a5428}
+.companion-card-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto;padding-top:12px}
+
+@media(max-width:720px){
+  .app{padding:10px 10px 100px}
+  .map{min-height:0;padding:25px 4px 14px;gap:10px}
+  .island{width:90%; max-width:320px; margin-bottom:10px}
+  .island .island-title{font-size:1.2rem; padding:6px 16px; bottom:2%}
+  .levels-path{padding:14px 7px}
+  .levels{gap:9px 4px}
+  .level{max-width:58px;border-width:3px;font-size:1rem}
+  .level small{font-size:.55rem}
+  .task-card{padding:16px}
+  .chest{width:70px;height:66px;right:12px;bottom:12px}
+  .class-btn{padding:8px 12px;font-size:.9rem}
+  
+  .shop-grid { grid-template-columns: repeat(4, 1fr); gap: 2% 2%; top: 32%; height: 58%; }
+  .shop-slot .s-name { display:block;font-size:clamp(.48rem,1.6vw,.72rem);overflow-wrap:anywhere; }
+  .shop-slot .s-cost { top: 2px; right: 2px; font-size: 0.5rem; padding: 1px 3px; }
+}
+@media(max-width:600px){
+  .companion-card{flex-direction:column;align-items:center;text-align:center;padding:18px}
+  .companion-card-info{padding-top:0;align-items:center}
+  .companion-role{align-self:center}
+  .companion-card-img{flex:0 0 auto;width:100%;min-height:240px}
+  .companion-card-img img{max-height:300px}
+}
+@media(max-width:400px){
+  .levels-path{padding:12px 5px}
+  .levels{gap:7px 3px}
+  .level{font-size:.85rem;border-width:2px}
+  .level small{font-size:.52rem}
+  .avatar{width:46px;height:46px;font-size:1.5rem}
+  .task-side{width:120px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="header-brand">
+    <h1>🏴‍☠️ Сундук знаний</h1>
+    <div class="header-companion" id="companionBox" aria-label="Выбранный спутник"></div>
+  </div>
+  <div class="header-actions">
+    <div class="coins" id="coins">🪙 0</div>
+    <button class="btn-gold" id="shopBtn">🧭 Магазин</button>
+    <button class="btn-reset" id="resetBtn" title="Сбросить весь прогресс">🔄 Сброс</button>
+  </div>
+</header>
+
+<section class="screen active" id="screen-map">
+  <div class="class-selector wood-panel" id="classSelector"><div class="label">🎓 Выбери свой класс</div></div>
+  <div class="map" id="map"></div>
+</section>
+
+<section class="screen" id="screen-levels">
+  <div class="breadcrumb"><button onclick="backToMenu()">🏠 В меню</button></div>
+  <div class="island-header wood-panel"><span class="island-name" id="islandTitle"></span><span class="progress-badge" id="progressBadge">0 / 10</span></div>
+  <div class="subtle-label">Выбери сложность:</div>
+  <div class="difficulty-row" id="difficultyRow"></div>
+  <div class="levels-path"><svg class="levels-svg" id="levelsSvg" preserveAspectRatio="none"></svg><div class="levels" id="levelsGrid"></div></div>
+</section>
+
+<section class="screen" id="screen-task">
+  <div class="breadcrumb"><button onclick="backToLevels()">← К уровням</button><button onclick="backToMenu()">🏠 В меню</button></div>
+  <div class="task-card">
+    <div class="task-meta"><span id="taskMeta"></span><span id="taskFails"></span></div>
+
+    <!-- СПУТНИК СЛЕВА ОТ ЗАДАНИЯ -->
+    <div class="task-main">
+      <div class="task-side">
+        <div id="companionFullWrap"></div>
+        <div class="companion-name-tag" id="companionNameTag">Спутник</div>
+        <div class="companion-bubble" id="companionBubble">
+          <div class="bubble-text" id="companionText">Привет! Я помогу тебе пройти уровень.</div>
+        </div>
+      </div>
+
+      <div class="task-content">
+        <div class="task-question" id="taskQuestion"></div>
+        <div class="answer-row"><input id="answerInput" placeholder="Введи ответ..." autocomplete="off"><button class="btn-primary" onclick="checkAnswer()">Ответить</button></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="task-actions"><button class="btn-gold" onclick="buyHint()">💡 Подсказка (150 ₽)</button><button class="btn-ghost" onclick="skipForCoins()">⏭ Пропуск (300 ₽)</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+<button class="wheel-btn" id="wheelBtn" onclick="spinDailyWheel()" title="Ежедневная рулетка">🎡</button>
+<button class="chest" id="chest" onclick="openDaily()" title="Ежедневное задание">🎁</button>
+<div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div>
+
+<script>
+/* ============================================================
+   ДАННЫЕ ЗАДАНИЙ
+   ============================================================ */
+
+const LEVELS_PATH = "Уровни";
+
+const SUBJECT_FOLDERS = {
+  math:    { folder: "Математика",   name: "Математика",   emoji: "➗", img: "picture/остров_мат.png" },
+  russian: { folder: "Русский язык", name: "Русский язык", emoji: "📖", img: "picture/остров_рус.png" },
+  physics: { folder: "Физика",       name: "Физика",       emoji: "⚛️", img: "picture/остров_физ.png" }
+};
+
+const DIFF_FOLDERS = ["легкий уровень", "средний уровень", "сложный уровень"];
+
+const ANSWERS = {
+  "math": {
+    "0": [
+      [
+        "8а",
+        "8a"
+      ],
+      [
+        "3х+6",
+        "3x+6",
+        "3х + 6",
+        "3x + 6"
+      ],
+      [
+        "9"
+      ],
+      [
+        "9"
+      ],
+      [
+        "5"
+      ],
+      [
+        "70"
+      ],
+      [
+        "120"
+      ],
+      [
+        "40"
+      ],
+      [
+        "7"
+      ],
+      [
+        "180"
+      ]
+    ],
+    "2": [
+      [
+        "40"
+      ],
+      [
+        "68"
+      ],
+      [
+        "12"
+      ],
+      [
+        "5"
+      ],
+      [
+        "40"
+      ],
+      [
+        "-1"
+      ],
+      [
+        "-3"
+      ],
+      [
+        "2"
+      ],
+      [
+        "13"
+      ],
+      [
+        "1"
+      ]
+    ],
+    "1": [
+      [
+        "7b(2a+d)"
+      ],
+      [
+        "0.32"
+      ],
+      [
+        "5x-13"
+      ],
+      [
+        "0.46"
+      ],
+      [
+        "4"
+      ],
+      [
+        "14"
+      ],
+      [
+        "30"
+      ],
+      [
+        "32.5"
+      ],
+      [
+        "14"
+      ],
+      [
+        "115"
+      ]
+    ]
+  },
+  "russian": {
+    "0": [
+      [
+        "13"
+      ],
+      [
+        "1"
+      ],
+      [
+        "1"
+      ],
+      [
+        "Б"
+      ],
+      [
+        "В"
+      ],
+      [
+        "Б"
+      ],
+      [
+        "Б"
+      ],
+      [
+        "2"
+      ],
+      [
+        "А"
+      ],
+      [
+        "13"
+      ]
+    ],
+    "2": [
+      [
+        "2458"
+      ],
+      [
+        "23468"
+      ],
+      [
+        "23456"
+      ],
+      [
+        "А"
+      ],
+      [
+        "АБГ"
+      ],
+      [
+        "В"
+      ],
+      [
+        "А"
+      ],
+      [
+        "Б"
+      ],
+      [
+        "В"
+      ],
+      [
+        "В"
+      ]
+    ],
+    "1": [
+      [
+        "А"
+      ],
+      [
+        "В"
+      ],
+      [
+        "А"
+      ],
+      [
+        "23"
+      ],
+      [
+        "А"
+      ],
+      [
+        "А"
+      ],
+      [
+        "В"
+      ],
+      [
+        "145"
+      ],
+      [
+        "23"
+      ],
+      [
+        "В"
+      ]
+    ]
+  },
+  "physics": {
+    "0": [
+      [
+        "путь"
+      ],
+      [
+        "килограммы",
+        "килограмм",
+        "кг"
+      ],
+      [
+        "трение",
+        "трения",
+        "сила трения"
+      ],
+      [
+        "термометр"
+      ],
+      [
+        "движение"
+      ],
+      [
+        "паскаль"
+      ],
+      [
+        "5000"
+      ],
+      [
+        "инерция"
+      ],
+      [
+        "динамометр"
+      ],
+      [
+        "20"
+      ]
+    ],
+    "2": [
+      [
+        "40"
+      ],
+      [
+        "3000"
+      ],
+      [
+        "800"
+      ],
+      [
+        "6"
+      ],
+      [
+        "0.5",
+        "0.5"
+      ],
+      [
+        "7.5",
+        "7.5"
+      ],
+      [
+        "5"
+      ],
+      [
+        "40"
+      ],
+      [
+        "20"
+      ],
+      [
+        "800"
+      ]
+    ],
+    "1": [
+      [
+        "поверхностное натяжение",
+        "из-за поверхностного натяжения",
+        "потому что действует поверхностное натяжение"
+      ],
+      [
+        "инерция",
+        "из-за инерции",
+        "потому что дейтсвует инетция"
+      ],
+      [
+        "давление",
+        "из-за давления"
+      ],
+      [
+        "архимедова",
+        "сила архимеда"
+      ],
+      [
+        "гидростатическое",
+        "гидростатическое давление"
+      ],
+      [
+        "20"
+      ],
+      [
+        "4800"
+      ],
+      [
+        "4"
+      ],
+      [
+        "200"
+      ],
+      [
+        "4"
+      ]
+    ]
+  }
+};
+
+const TASK_EXT = "jpg";
+
+function taskImagePath(subjectKey, diffKey, levelIndex) {
+  const subj = SUBJECT_FOLDERS[subjectKey];
+  const diff = DIFF_FOLDERS[diffKey];
+  return `${LEVELS_PATH}/${subj.folder}/${diff}/${levelIndex + 1}.${TASK_EXT}`;
+}
+
+const DIFFICULTIES = [
+  {key:0, label:"🟢 Лёгкий"},
+  {key:1, label:"🟡 Средний"},
+  {key:2, label:"🔴 Сложный"}
+];
+
+const COMPANIONS = [
+  {id:1, img:"picture/спутник_1.jpg", defaultName:"Юный пират", cost:2000, desc:"Смелый юнга, который только начинает свой путь. Всегда рвётся в бой и верит в лучшее.", role:"Воин"},
+  {id:2, img:"picture/спутник_2.jpg", defaultName:"Попугай Кеша", cost:1500, desc:"Болтливый попугай, который знает все пиратские байки и обожает дублоны.", role:"Болтун"},
+  {id:3, img:"picture/спутник_3.jpg", defaultName:"Отважная пиратка", cost:3000, desc:"Не боится ни шторма, ни сложных задач. Всегда поддержит и подскажет верный путь.", role:"Капитан"},
+  {id:4, img:"picture/спутник_4.jpg", defaultName:"Девочка-матрос", cost:2500, desc:"Внимательная и ловкая. Лучше всех вяжет узлы и находит нестандартные решения.", role:"Матрос"},
+  {id:5, img:"picture/спутник_5.jpg", defaultName:"Обезьянка Чичи", cost:1000, desc:"Весёлая обезьянка. Любит бананы и прыгать по уровням. Ваш верный друг с самого начала.", role:"Друг"},
+  {id:6, img:"picture/спутник_6.jpg", defaultName:"Акула-пират", cost:5000, desc:"Гроза морей. Чует правильный ответ за милю и не прощает ошибок.", role:"Охотник"},
+  {id:7, img:"picture/спутник_7.jpg", defaultName:"Кладоискатель", cost:4000, desc:"У него есть карта всех сокровищ знаний. Никогда не сворачивает с верного пути.", role:"Следопыт"},
+  {id:8, img:"picture/спутник_8.jpg", defaultName:"Юнга с трубой", cost:3500, desc:"Смотрит вдаль и первым видит новые острова. Трубит сбор, когда пора действовать.", role:"Наблюдатель"}
+];
+
+const LINES = {
+  1:{g:["Я готов к приключениям! 🗡️","Вперёд, за знаниями!","Мой клинок и ум всегда со мной!","Капитан, мозги — наше главное оружие!","Если задача кусается, покажем ей, кто тут пират!","Я проверил меч — острый. Теперь проверь ответ!"],ok:["Отличный удар! 🗡️","Так держать, капитан!","Ты настоящий герой!","Йо-хо-хо! Ещё один ответ в нашу копилку!","Вот это меткость — даже попугай аплодирует!","Ты сегодня опаснее морского чудовища!"],bad:["Мимо! Но мы не сдаёмся!","Ошибка — не повод опускать клинок!","Соберись, приключение продолжается!","Даже компас иногда крутится. Давай ещё раз!","Ошибка — это подсказка, замаскированная под неудачу.","Спокойно, капитан. Сокровища сами себя не найдут!"],hint:["Мой совет: {h}","Я знаю секрет: {h}"]},
+  2:{g:["Привет-привет! Кеша на борту! 🦜","Летим навстречу знаниям!","Пиастры за правильные ответы!","Кар-р-рамба! Я сегодня отвечаю только умными фразами!","Кто рано думает, тому удача бросает сухарик!","Не отвлекайся на мои перья — думай головой!"],ok:["Кра-со-та! Так держать! 🦜","Правильно! Я знал, что ты сможешь!","Ещё один остров покорён!","Кар-р-расота! Запишите это в пиратскую летопись!","Умный ответ! Даже я на секунду замолчал!","Дублоны звенят, знания крепнут!"],bad:["Ой-ой, не то! Попробуй ещё!","Подумай ещё чуть-чуть!","Кар-р-рамба, ответ улетел не на тот остров!","Не клюй носом — клюй задачку!","Я бы подсказал, но у меня клюв занят сухариком. Думай ещё!"],hint:["Клювом чувствую: {h}","Слушай сюда: {h}"]},
+  3:{g:["Привет! Я готова к бою! ⚔️","Пиратка всегда добьётся своего!","Вперёд, к новым открытиям!","Смелость — это не отсутствие ошибок, а готовность пробовать снова!","Покажем этой задаче наш капитанский характер!","Плащ на месте, сабля на месте — осталось включить логику!"],ok:["Блестяще! ⚔️","Умница! Так держать!","Ты справился на все сто!","Вот это победа! Море знаний нам по колено!","Твоя логика сегодня острее моей сабли!","Ещё один шаг к званию легенды семи морей!"],bad:["Не сдавайся! Попробуй снова!","Ошибки делают нас сильнее!","Соберись, у нас ещё есть шанс!","Выдохни и взгляни на условие свежим взглядом.","Настоящие капитаны не бросают корабль из-за одной волны!","Мы не проиграли — мы нашли способ, который не сработал. Ищем дальше!"],hint:["Мой секрет: {h}","Запомни: {h}"]},
+  4:{g:["Привет! Я помогу тебе в плавании! ⚓","Попутного ветра в знаниях!","Матрос всегда начеку!"],ok:["Есть! ⚓","Отличная работа!","Ты на правильном курсе!"],bad:["Не дрейфь! Попробуй ещё!","Ошибка — не беда, главное — идти вперёд!","Соберись, мы почти у цели!"],hint:["Мой совет: {h}","Вот что я знаю: {h}"]},
+  5:{g:["Приветик! Чичи с тобой! 🐒","Прыгаем по уровням?","Дай пять! Или банан 🍌","Чичи включил режим супермозга! Где мой маленький шлем?","Если получится — банан победителю. То есть мне. Ну и тебе тоже!","Задачка, не прячься: я уже запрыгнул на твою логику!"],ok:["Ух ты! Как банан сорвал! 🍌","Молодец! Прыгаем дальше!","Уиии! Мозг сделал сальто и приземлился на правильный ответ!","Держи воображаемый банан и настоящую похвалу!","Ты умнее трёх обезьян и одного очень хитрого попугая!"],bad:["Ой! Почти-почти!","Давай ещё разок!","Чичи тоже иногда промахивается мимо банана. Пробуем снова!","Не грусти! Даже кокос не раскалывается с первого удара.","Пауза на вдох — и снова в прыжок!"],hint:["Чичи шепчет: {h}","Лови подсказку: {h}"]},
+  6:{g:["Р-р-р! Акула на охоте за знаниями! 🦈","Я чую правильный ответ!","Попробуй меня переплыть!"],ok:["Отличный улов! 🦈","Ты быстрее акулы!","Вот это хватка!"],bad:["Мимо! Попробуй ещё разок!","Не расслабляйся, добыча близко!","Я чую, что ответ рядом!"],hint:["Мой нюх подсказывает: {h}","Слушай акулу: {h}"]},
+  7:{g:["У меня есть карта сокровищ! 🗺️","Пойдём по следу знаний!","Клад ждёт нас впереди!"],ok:["Нашёл правильный путь! 🗺️","Молодец! Карта не врёт!","Ты настоящий кладоискатель!"],bad:["Не туда свернул! Попробуй ещё!","Карта говорит, что нужно подумать!","Поищем другой путь!"],hint:["Карта шепчет: {h}","Вот подсказка: {h}"]},
+  8:{g:["Я вижу землю! 🌴","Свистать всех наверх!","Приключения начинаются!"],ok:["Точно в цель! 🌴","Отличный выстрел!","Ты на высоте!"],bad:["Мимо! Попробуй снова!","Соберись, юнга!","Ещё один залп!"],hint:["Подзорная труба показывает: {h}","Вижу подсказку: {h}"]}
+};
+
+const CLASSES = [5,6,7,8,9,10,11].map(n => ({num:n, available:n===7}));
+const DEF = {coins:0, companion:5, companionName:"Обезьянка Чичи", ownedCompanions:[5], progress:{}, dailyOpenedAt:null, wheelSpunAt:null, extraDailyCredits:0, failsInLevel:{}, selectedClass:7};
+
+let state = loadState();
+let currentSubject = null;
+let currentDifficulty = 0;
+let currentLevel = 0;
+
+const $ = id => document.getElementById(id);
+
+function loadState(){try{return {...DEF, ...JSON.parse(localStorage.getItem("chestOfKnowledge")||"{}")}}catch(e){return structuredClone(DEF)}}
+function saveState(){localStorage.setItem("chestOfKnowledge", JSON.stringify(state)); renderCoins()}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function norm(s){return String(s).normalize("NFKC").trim().toLowerCase().replace(/ё/g,"е").replace(/[х×]/g,"x").replace(/,/g,".").replace(/[−–—]/g,"-").replace(/\s+/g," ").replace(/\s*([+*/=()])\s*/g,"$1")}
+function getComp(){return COMPANIONS.find(c=>c.id===state.companion)||null}
+function say(type,h=""){const c=getComp();const l=c&&LINES[c.id];const arr=l?l[type]:({g:["Привет! Я помогу тебе пройти уровень."],ok:["✅ Верно! Молодец!"],bad:["❌ Неверно. Попробуй ещё."],hint:["💡 Подсказка: {h}"]})[type];return pick(arr).replace("{h}",h)}
+function renderCoins(){$("coins").textContent="🪙 "+state.coins+" ₽";renderCompanion()}
+
+function renderCompanion(){
+  const c = getComp();
+  const box = $("companionBox");
+  if(!box) return;
+  if(c){
+    const name = state.companionName || c.defaultName;
+    box.innerHTML = `<img src="${c.img}" alt="${name}"><span class="header-companion-name">${name}</span>`;
+    box.title = `Твой спутник: ${name}`;
+  } else {
+    box.innerHTML = `<span aria-hidden="true">🧭</span><span class="header-companion-name">Спутник не выбран</span>`;
+    box.title = "Спутник не выбран";
+  }
+}
+
+function renderClassSelector(){
+  const box = $("classSelector");
+  box.querySelectorAll(".class-btn").forEach(b=>b.remove());
+  CLASSES.forEach(c=>{
+    const b = document.createElement("button");
+    b.className = "class-btn" + (c.available && state.selectedClass===c.num ? " active" : "") + (c.available ? "" : " disabled");
+    b.innerHTML = c.num + " класс" + (c.available ? "" : '<span class="dev-tag">в разработке</span>');
+    b.onclick = () => {
+      if(c.available){
+        state.selectedClass = c.num;
+        saveState();
+        renderClassSelector();
+      } else {
+        showModal(`<h3>🔒 ${c.num} класс</h3><div class="big">🚧</div><p>Этот класс ещё в разработке.</p><button class="btn-gold" onclick="closeModal()">Понятно</button>`);
+      }
+    };
+    box.appendChild(b);
+  });
+}
+
+function renderMap(){
+  $("map").innerHTML = "";
+  Object.entries(SUBJECT_FOLDERS).forEach(([k,s])=>{
+    const e = document.createElement("button");
+    e.className = "island";
+    e.innerHTML = `
+      <img src="${s.img}" alt="${s.name}">
+      <span class="island-title">${s.name}</span>
+    `;
+    e.onclick = () => openIsland(k);
+    $("map").appendChild(e);
+  });
+}
+
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active")}
+function openIsland(k){currentSubject=k;currentDifficulty=0;showLevels();showScreen("screen-levels")}
+function pkey(){return `${state.selectedClass}:${currentSubject}:${currentDifficulty}`}
+function prog(){const k=pkey();if(!state.progress[k])state.progress[k]={completed:[]};return state.progress[k]}
+
+function currentTasks(){
+  const subj = ANSWERS[currentSubject];
+  return (subj && subj[currentDifficulty]) ? subj[currentDifficulty] : [];
+}
+
+function showLevels(){$("islandTitle").textContent=SUBJECT_FOLDERS[currentSubject].name;renderDifficulty();renderLevels()}
+
+function renderDifficulty(){
+  $("difficultyRow").innerHTML = "";
+  DIFFICULTIES.forEach(d=>{
+    const b = document.createElement("button");
+    b.className = d.key===currentDifficulty ? "btn-gold" : "btn-ghost";
+    b.textContent = d.label;
+    b.onclick = () => {currentDifficulty=d.key; renderDifficulty(); renderLevels();};
+    $("difficultyRow").appendChild(b);
+  });
+}
+
+function renderLevels(){
+  const grid = $("levelsGrid");
+  const tasks = currentTasks();
+  const p = prog();
+  grid.innerHTML = "";
+  const cols = 5;
+  grid.style.gridTemplateColumns = `repeat(${cols},minmax(38px,1fr))`;
+  const pos = [];
+  let cur = tasks.findIndex((t,i)=>!p.completed.includes(i));
+  if(cur<0) cur = tasks.length-1;
+
+  tasks.forEach((t,i)=>{
+    const r = Math.floor(i/cols);
+    const c0 = i%cols;
+    const c = r%2===0 ? c0 : cols-1-c0;
+    const done = p.completed.includes(i);
+    const unlock = i===0 || p.completed.includes(i-1);
+    const now = i===cur && !done && unlock;
+    const e = document.createElement("button");
+    e.className = "level" + (done?" done":"") + (unlock?"":" locked") + (now?" current":"");
+    e.style.gridRow = r+1;
+    e.style.gridColumn = c+1;
+    const comp = getComp();
+    e.innerHTML = `${done?"🏆":i+1}<small>${done?"пройден":unlock?(now?"сейчас":"открыт"):"закрыт"}</small>${comp&&now?`<span class="level-companion"><img src="${comp.img}" alt=""></span>`:""}`;
+    if(unlock) e.onclick = () => openTask(i);
+    grid.appendChild(e);
+    pos.push({x:(c+.5)*100/cols, y:(r+.5)*50, idx:i});
+  });
+
+  $("progressBadge").textContent = `${state.selectedClass} класс · ${p.completed.length}/${tasks.length}`;
+  drawPath(pos);
+}
+
+function drawPath(pos){
+  const svg = $("levelsSvg");
+  svg.setAttribute("viewBox","0 0 100 100");
+  svg.innerHTML = "";
+  if(pos.length<2) return;
+  pos.sort((a,b)=>a.idx-b.idx);
+  let d = `M ${pos[0].x} ${pos[0].y}`;
+  for(let i=1;i<pos.length;i++){ const b = pos[i]; d += ` L ${b.x} ${b.y}`; }
+  const p = document.createElementNS("http://www.w3.org/2000/svg","path");
+  p.setAttribute("d", d);
+  svg.appendChild(p);
+}
+
+function fkey(){return `${state.selectedClass}:${currentSubject}:${currentDifficulty}:${currentLevel}`}
+function fails(){return state.failsInLevel[fkey()]||0}
+function updateFails(){$("taskFails").textContent = fails() ? `Неудач: ${fails()}/10` : ""}
+
+// ==================== ОТКРЫТИЕ ЗАДАНИЯ (ОТДЕЛЬНЫЙ ЭКРАН) ====================
+function openTask(i){
+  currentLevel = i;
+  const imgSrc = taskImagePath(currentSubject, currentDifficulty, i);
+  $("taskMeta").textContent = `${state.selectedClass} класс · ${SUBJECT_FOLDERS[currentSubject].name} · ${DIFFICULTIES[currentDifficulty].label.replace(/[^А-Яа-я ]/g,"").trim()} · Уровень ${i+1}`;
+  $("taskQuestion").innerHTML = `<img src="${imgSrc}" alt="Задание ${i+1}" class="task-img" onerror="this.outerHTML='<div style=&quot;padding:20px;color:#b93228;font-weight:800;text-align:center&quot;>⚠️ Не найдена картинка:<br>${imgSrc}</div>'">`;
+  $("answerInput").value = "";
+  $("feedback").textContent = "";
+  $("feedback").className = "feedback";
+  updateFails();
+  setMessage(say("g"));
+  showScreen("screen-task");
+  setTimeout(()=>$("answerInput").focus(),80);
+}
+
+function setMessage(t,type="normal"){
+  const c = getComp();
+  const wrap = $("companionFullWrap");
+  const bubble = $("companionBubble");
+  const nameTag = $("companionNameTag");
+  if(!wrap || !bubble || !nameTag) return;
+
+  if(c){
+    wrap.innerHTML = `<img src="${c.img}" alt="${state.companionName||c.defaultName}" class="companion-full">`;
+  } else {
+    wrap.innerHTML = `<div class="companion-full-placeholder">🧭</div>`;
+  }
+  nameTag.textContent = state.companionName || (c ? c.defaultName : "Спутник");
+  $("companionText").textContent = t;
+
+  bubble.className = "companion-bubble";
+  if(type === "ok")  bubble.classList.add("speech-ok");
+  if(type === "bad") bubble.classList.add("speech-bad");
+}
+
+// ==================== ПРОВЕРКА ОТВЕТА ====================
+function checkAnswer(){
+  const tasks = currentTasks();
+  const correct = tasks[currentLevel];
+  const accepted = Array.isArray(correct) ? correct : [correct];
+  const v = $("answerInput").value;
+  const fb = $("feedback");
+
+  if(!v.trim()){ fb.textContent="Введи ответ!"; fb.className="feedback bad"; return; }
+
+  if(accepted.some(answer => norm(v) === norm(answer))){
+    fb.textContent = `✅ Верно! +${[100,200,300][currentDifficulty]} ₽`;
+    fb.className = "feedback ok";
+    setMessage(say("ok"),"ok");
+    completeLevel(true);
+  } else {
+    state.failsInLevel[fkey()] = fails()+1;
+    saveState();
+    updateFails();
+    fb.textContent = "❌ Неверно. Попробуй ещё раз или возьми подсказку.";
+    fb.className = "feedback bad";
+    setMessage(say("bad"),"bad");
+    if(fails()>=10){
+      fb.textContent += " Уровень будет пропущен автоматически.";
+      setTimeout(()=>completeLevel(false),900);
+    }
+  }
+}
+
+function completeLevel(reward=true){
+  const p = prog();
+  if(!p.completed.includes(currentLevel)) p.completed.push(currentLevel);
+  if(reward) state.coins += [100,200,300][currentDifficulty];
+  delete state.failsInLevel[fkey()];
+  saveState();
+  const n = currentTasks().length;
+  if(currentLevel+1 < n){
+    setTimeout(()=>{
+      openTask(currentLevel+1);
+      $("feedback").textContent = reward ? `🏆 Уровень пройден! +${[100,200,300][currentDifficulty]} ₽ · Следующий уровень!` : "Уровень пропущен · Следующий уровень";
+      $("feedback").className = "feedback ok";
+    },900);
+  } else {
+    setTimeout(()=>{
+      showLevels();
+      showScreen("screen-levels");
+      showModal(`<h3>🎉 Остров покорён!</h3><div class="big">🏆</div><p>Ты прошёл все уровни этой сложности!</p><button class="btn-gold" onclick="closeModal()">Ура!</button>`);
+    },900);
+  }
+}
+
+const HINTS = {
+  "math": {
+    "0": [
+      "Сложите числа",
+      "Перемножьте фонтанчиком",
+      "Между буквой и цифрой стоит знак умножения",
+      "Число в квадрате положительно",
+      "При переносе за знак равно, знак числа меняется на противоположный",
+      "Сумма всех углов треугольника 180 градусов",
+      "Сумма смежных углов 180 градусов",
+      "У равнобедренного треугольника углы при основании равны",
+      "У равностороннего треугольника все стороны равны",
+      "Вспомните теорему о сумме углов треугольника"
+    ],
+    "2": [
+      "Сумма односторонних углов 180 градусов",
+      "Внешний угол треугольника равен сумме внутренних углов не смежных с ним",
+      "У равнобедренного треугольника боковые стороны равны",
+      "Чтобы треугольник существовал, сумма двух его сторон должна быть больше третей",
+      "Биссектриса делит угол пополам",
+      "Раскройте скобки и перенесите числа с противоположным знаком",
+      "Перенесите игрики к игрикам, а числа к числам с противополжными знаками",
+      "Острожно! Хитрый минус -- меняет все знаки в скобке на противоположные",
+      "Раскройте скобки, будьте внимательны, там хитрый минус",
+      "Раскройте скобки, будьте внимательны, там хитрый минус"
+    ],
+    "1": [
+      "Вынесите общий множитель за скобки",
+      "Домножте числитель и знаменатель на такое число, чтобы в знаменателе получилось 100",
+      "Осторожно! Хитрый минус -- меняет все знаки в скобке на противоположные",
+      "1% = 0.01",
+      "На число с запятой делить нельзя! Нужно переносить запятую",
+      "Составьте уравнение",
+      "Биссектриса делит угол пополам",
+      "У равнобедренного треугольника углы при основании равны",
+      "Угол, лежащий напротив угла в 30 градусов равен половине гипотенузы",
+      "Сумма двух односторонних углов равна 180"
+    ]
+  },
+  "physics": {
+    "0": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Приставка \"Кило\" означает 1000",
+      "",
+      "",
+      "А = F * S"
+    ],
+    "2": [
+      "S = V * t",
+      "V = m : ρ. Не забудьте перевести ответ в кубические сантиметры",
+      "P = F : S",
+      "A  = F * S. Не забудьте выразить ответ в кДж",
+      "А = P * t. Не забудьте перевести ответ в минуты",
+      "F = ma",
+      "F = ma",
+      "F = ρVg",
+      "Посчитайте силу тяжести F = mg и выталкивающую силу F = ρVg. Полученные результаты вычтите",
+      "A = F * S"
+    ],
+    "1": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Не забудьте перевести единицы измерения в систему СИ.  S= V*t",
+      "P = F : S",
+      "А = F * S",
+      "Не забудьте перевести единицы измерения в систему СИ.  Vср = Sобщ : tобщ"
+    ]
+  }
+};
+function buyHint(){
+  const tasks = currentTasks();
+  const raw = tasks[currentLevel] ?? [];
+  const correct = String(Array.isArray(raw) ? (raw[0] ?? "") : raw);
+  if(state.coins < 150){ alert("Не хватает монет! Нужно 150 ₽."); return; }
+  state.coins -= 150;
+  saveState();
+  const levelHint = HINTS[currentSubject]?.[String(currentDifficulty)]?.[currentLevel];
+  const tips = [
+    "Внимательно перечитай условие и выдели главное.",
+    "Решай по шагам и проверь результат."
+  ];
+  const hint = (levelHint && levelHint.trim()) ? levelHint.trim() : pick(tips);
+  setMessage(say("hint", hint),"hint");
+  $("feedback").textContent = "💡 " + hint;
+  $("feedback").className = "feedback ok";
+}
+
+function skipForCoins(){
+  if(state.coins < 300){ alert("Не хватает монет! Нужно 300 ₽."); return; }
+  if(!confirm("Пропустить уровень за 300 ₽? Награда не начисляется.")) return;
+  state.coins -= 300;
+  saveState();
+  completeLevel(false);
+}
+
+
+function wheelAvailable(){return state.wheelSpunAt !== today();}
+function renderWheel(){const b=$("wheelBtn");if(b){b.classList.toggle("pulse-off",!wheelAvailable());b.disabled=!!window.wheelSpinning;}}
+function spinDailyWheel(){
+  if(window.wheelSpinning)return;
+  if(!wheelAvailable()){showModal(`<div class="daily-card"><h3>🎡 Рулетка уже крутилась</h3><p>Новая попытка появится завтра!</p><button class="btn-gold" onclick="closeModal()">Понятно</button></div>`);return;}
+  window.wheelSpinning=true;
+  // Каждый сектор имеет фиксированный приз. Сначала выбираем сектор,
+  // затем рассчитываем угол так, чтобы именно он остановился под стрелкой.
+  const sectorIndex=Math.floor(Math.random()*6);
+  const sectorType=["companion","extra","money","companion","extra","money"][sectorIndex];
+  let prizeType=sectorType, prizeText, prizeAmount=0, selectedCompanion=null;
+  if(prizeType==="companion"){
+    const available=COMPANIONS.filter(c=>!state.ownedCompanions.includes(c.id));
+    if(available.length){selectedCompanion=pick(available);prizeText=`🛰️ Новый спутник: ${selectedCompanion.defaultName}!`;}
+    else {prizeType="money";prizeAmount=500;prizeText="🪙 Все спутники уже собраны — ты получаешь 500 ₽!";}
+  }else if(prizeType==="extra"){
+    prizeText="🧩 Дополнительное ежедневное задание!";
+  }else{
+    prizeAmount=(Math.floor(Math.random()*10)+1)*100;
+    prizeText=`💰 ${prizeAmount} ₽!`;
+  }
+  showModal(`<div class="daily-card"><h3>🎡 Рулетка удачи</h3><p>Крути колесо и забирай приз!</p><div class="wheel-stage"><div class="wheel-pointer"></div><div class="wheel-disc" id="wheelDisc"><div class="wheel-labels"><span style="transform:rotate(30deg) translateY(-105px)">Спутник</span><span style="transform:rotate(90deg) translateY(-105px)">Задание</span><span style="transform:rotate(150deg) translateY(-105px)">100–1000 ₽</span><span style="transform:rotate(210deg) translateY(-105px)">Спутник</span><span style="transform:rotate(270deg) translateY(-105px)">Задание</span><span style="transform:rotate(330deg) translateY(-105px)">Монеты</span></div></div></div><p id="wheelResult">Колесо вращается…</p><button class="btn-gold" id="wheelCollect" disabled>Крутим…</button></div>`);
+  const disc=$("wheelDisc");
+  // Секторы занимают 60°; их центры находятся на 30° + 60° * index.
+  // При вращении на отрицательный центр выбранный сектор встанет точно под верхнюю стрелку.
+  const targetAngle=(360-(30+sectorIndex*60))%360;
+  requestAnimationFrame(()=>{if(disc)disc.style.transform=`rotate(${1800+targetAngle}deg)`;});
+  setTimeout(()=>{
+    if(prizeType==="companion"&&selectedCompanion){state.ownedCompanions.push(selectedCompanion.id);state.companion=selectedCompanion.id;state.companionName=selectedCompanion.defaultName;}
+    else if(prizeType==="extra")state.extraDailyCredits=(state.extraDailyCredits||0)+1;
+    else state.coins+=prizeAmount;
+    state.wheelSpunAt=today();saveState();renderWheel();renderCompanion();
+    const result=$("wheelResult");if(result)result.innerHTML=`<strong>Твой приз:</strong><br>${prizeText}`;
+    const collect=$("wheelCollect");if(collect){collect.disabled=false;collect.textContent="Забрать приз";collect.onclick=closeModal;}
+    window.wheelSpinning=false;renderWheel();
+  },4250);
+}
+function today(){const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`}
+function dailyAvailable(){return state.dailyOpenedAt !== today() || (state.extraDailyCredits||0)>0}
+function renderChest(){$("chest").classList.toggle("pulse-off", !dailyAvailable())}
+
+const DAILY = [
+  {img:"Ребусы/1.jpg",  a:["катар"]},
+  {img:"Ребусы/2.jpg",  a:["банка"]},
+  {img:"Ребусы/3.jpg",  a:["окно"]},
+  {img:"Ребусы/4.jpg",  a:["соответствует"]},
+  {img:"Ребусы/5.jpg",  a:["парта"]},
+  {img:"Ребусы/6.jpg",  a:["6"]},
+  {img:"Ребусы/7.jpg",  a:["белоснежка"]},
+  {img:"Ребусы/8.jpg",  a:["эхо"]},
+  {img:"Ребусы/9.jpg",  a:["зубная фея"]},
+  {img:"Ребусы/10.jpg", a:["лыжи"]},
+  {img:"Ребусы/11.jpg", a:["карандаш"]},
+  {img:"Ребусы/12.jpg", a:["огурец"]},
+  {img:"Ребусы/13.jpg", a:["отвертка"]},
+  {img:"Ребусы/14.jpg", a:["10"]},
+  {img:"Ребусы/15.jpg", a:["эльза"]},
+  {img:"Ребусы/16.jpg", a:["гарри поттер"]},
+  {img:"Ребусы/17.jpg", a:["книга"]},
+  {img:"Ребусы/18.jpg", a:["ложка"]},
+  {img:"Ребусы/19.jpg", a:["мороз"]},
+  {img:"Ребусы/20.jpg", a:["яма"]},
+  {img:"Ребусы/21.jpg", a:["самолет"]},
+  {img:"Ребусы/22.jpg", a:["стул"]},
+  {img:"Ребусы/23.jpg", a:["полотенце"]},
+  {img:"Ребусы/24.jpg", a:["неправильно"]},
+  {img:"Ребусы/25.jpg", a:["соль","сковородка"]},
+  {img:"Ребусы/26.jpg", a:["рана"]},
+  {img:"Ребусы/27.jpg", a:["парта"]},
+  {img:"Ребусы/28.jpg", a:["12"]},
+  {img:"Ребусы/29.jpg", a:["четвертым"]},
+  {img:"Ребусы/30.jpg", a:["часы","время"]}
+];
+
+function openDaily(){
+  if(!dailyAvailable()){
+    showModal(`<div class="daily-card"><h3>🎁 Сундук пуст</h3><div class="big">🕰️</div><p>Возвращайся завтра за новым заданием!</p><button class="btn-gold" onclick="closeModal()">Закрыть</button></div>`);
+    return;
+  }
+  const idx = Math.floor(Math.random() * DAILY.length);
+  const t = DAILY[idx];
+
+  showModal(`
+    <div class="daily-card">
+      <h3>🎁 Ежедневный сундук</h3>
+      <p style="margin:10px 0 14px;color:#4c2815;font-weight:800">Реши ребус и получи награду 250 ₽!</p>
+
+      <img src="${t.img}"
+           alt="Ребус"
+           class="daily-img"
+           onerror="this.outerHTML='<div style=&quot;padding:16px;color:#b93228;font-weight:800;text-align:center&quot;>⚠️ Не найдена картинка:<br>${t.img}</div>'">
+
+      <input id="dailyInput" placeholder="Введи ответ…" autocomplete="off">
+      <div id="dailyFb" aria-live="polite"></div>
+
+      <div class="daily-actions">
+        <button class="btn-primary" onclick="checkDaily(${idx})">Ответить</button>
+        <button class="btn-ghost" onclick="closeModal()">Закрыть</button>
+      </div>
+    </div>
+  `);
+
+  setTimeout(() => {
+    const inp = document.getElementById("dailyInput");
+    if(inp) inp.focus();
+  }, 120);
+}
+
+function checkDaily(idx){
+  const t = DAILY[idx];
+  const v = $("dailyInput").value.trim();
+  const fb = $("dailyFb");
+
+  if(!v){ fb.textContent = "Введи ответ!"; fb.style.color = "#b93228"; return; }
+
+  const ok = t.a.some(ans => norm(v) === norm(ans));
+
+  if(ok){
+    fb.textContent = "✅ Верно! Ежедневное задание выполнено! +250 ₽";
+    fb.style.color = "#27834b";
+    state.coins += 250;
+    if(state.dailyOpenedAt === today() && (state.extraDailyCredits||0)>0) state.extraDailyCredits--;
+    else state.dailyOpenedAt = today();
+    saveState();
+    renderChest();
+    setTimeout(closeModal, 1200);
+  } else {
+    fb.textContent = "❌ Неверно, попробуй ещё.";
+    fb.style.color = "#b93228";
+  }
+}
+
+// ==================== МАГАЗИН ====================
+function openShop(){
+  const gridItems = COMPANIONS.map(c=>{
+    const owned = state.ownedCompanions.includes(c.id);
+    const selected = state.companion === c.id;
+    let slotClass = "shop-slot";
+    if(owned) slotClass += " owned";
+    if(selected) slotClass += " selected";
+    if(!owned) slotClass += " locked";
+    return `
+      <div class="${slotClass}" onclick="handleShopClick(${c.id})">
+        <img src="${c.img}" alt="${c.defaultName}">
+        <span class="s-name">${owned && selected && state.companionName ? state.companionName : c.defaultName}</span>
+        ${!owned ? `<span class="s-cost">${c.cost} 🪙</span>` : ''}
+      </div>
+    `;
+  }).join("");
+  showModal(`<div class="shop-container"><div class="shop-close-btn" onclick="closeModal()">✖</div><div class="shop-grid">${gridItems}</div></div>`);
+}
+
+function handleShopClick(id){ openCompanionCard(id); }
+
+function openCompanionCard(id){
+  const c = COMPANIONS.find(x=>x.id===id);
+  const owned = state.ownedCompanions.includes(id);
+  const selected = state.companion === id;
+  let actionBtn = "";
+  if(selected){
+    actionBtn = `<button class="btn-gold" onclick="askNameForCompanion(COMPANIONS.find(x=>x.id===${id}), true)">✏️ Переименовать</button>`;
+  } else if(owned){
+    actionBtn = `<button class="btn-gold" onclick="selectCompanion(${id})">✅ Выбрать</button>`;
+  } else {
+    actionBtn = `<button class="btn-gold" onclick="buyCompanion(${id})">🛒 Купить за ${c.cost} 🪙</button>`;
+  }
+  showModal(`
+    <div class="companion-card">
+      <div class="companion-card-close" onclick="openShop()">← Назад</div>
+      <div class="companion-card-img"><img src="${c.img}" alt="${c.defaultName}"></div>
+      <div class="companion-card-info">
+        <h3>${owned && selected && state.companionName ? state.companionName : c.defaultName}</h3>
+        <div class="companion-role">${c.role || "Спутник"}</div>
+        <p>${c.desc || "Верный спутник в приключениях за знаниями."}</p>
+        <div class="companion-status">${selected ? "⭐ Сейчас с вами" : owned ? "✅ Куплен" : `💰 Цена: ${c.cost} 🪙`}</div>
+        <div class="companion-card-actions">
+          ${actionBtn}
+          <button class="btn-ghost" onclick="openShop()">К списку</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+function buyCompanion(id){
+  const c = COMPANIONS.find(x=>x.id===id);
+  if(state.ownedCompanions.includes(id)){ openCompanionCard(id); return; }
+  if(state.coins < c.cost){ alert("Не хватает дублонов! 🪙"); return; }
+  state.coins -= c.cost;
+  state.ownedCompanions.push(id);
+  saveState();
+  askNameForCompanion(c, false);
+}
+
+function selectCompanion(id){
+  const c = COMPANIONS.find(x=>x.id===id);
+  state.companion = id;
+  state.companionName = c.defaultName;
+  saveState();
+  closeModal();
+  if($("screen-task").classList.contains("active")) setMessage(say("g"));
+  renderCompanion();
+}
+
+function askNameForCompanion(c, isRename){
+  const currentName = isRename ? (state.companionName || c.defaultName) : c.defaultName;
+  const title = isRename ? "✏️ Переименовать" : "🏴‍☠️ Назови героя";
+  const btnText = isRename ? "Сохранить" : "Нанять";
+  showModal(`
+    <h3 style="color:#fff;text-shadow:0 2px #000">${title}</h3>
+    <div style="background:#fff6df;border:4px solid #8a5428;border-radius:16px;padding:20px;max-width:350px;margin:0 auto;box-shadow:0 10px 25px rgba(0,0,0,0.5)">
+      <img src="${c.img}" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid #8a5428;box-shadow:0 4px #5b3a1e;margin:0 auto 10px;display:block;background:#fff">
+      <p style="margin-bottom:12px;color:#623719;font-weight:700">Как зовут твоего героя?</p>
+      <input id="compNameInput" value="${currentName}" style="width:100%;padding:12px;border-radius:10px;border:2px solid #5b3a1e;margin-bottom:12px;text-align:center;font-size:1.05rem;font-weight:700;color:#3b1f07">
+      <button class="btn-gold" onclick="confirmCompanionName(${c.id})">${btnText}</button>
+      ${isRename ? `<button class="btn-ghost" onclick="openShop()">Назад</button>` : `<button class="btn-ghost" onclick="closeModal()">Позже</button>`}
+    </div>
+  `);
+  setTimeout(() => {
+    const input = document.getElementById("compNameInput");
+    if(input){ input.focus(); input.select(); }
+  }, 100);
+}
+
+function confirmCompanionName(id){
+  const c = COMPANIONS.find(x=>x.id===id);
+  const val = $("compNameInput").value.trim() || c.defaultName;
+  state.companion = id;
+  state.companionName = val;
+  saveState();
+  closeModal();
+  renderCompanion();
+  if($("screen-task").classList.contains("active")) setMessage(say("g"));
+}
+
+function showModal(h){ $("modalBox").innerHTML = h; $("modal").classList.add("open"); }
+function closeModal(){ $("modal").classList.remove("open"); }
+
+function backToLevels(){
+  if($("screen-task").classList.contains("active")){
+    const f = $("feedback").textContent;
+    if(!f.includes("Верно") && !f.includes("пройден") && !f.includes("пропущен") && !confirm("Выйти с уровня?")) return;
+  }
+  showLevels();
+  showScreen("screen-levels");
+}
+
+function backToMenu(){
+  currentSubject = null;
+  currentDifficulty = 0;
+  currentLevel = 0;
+  renderMap();
+  showScreen("screen-map");
+}
+
+function resetProgress(){
+  if(!confirm("Ты уверен? Весь прогресс, монеты и купленные спутники будут удалены. Это действие нельзя отменить.")) return;
+  localStorage.removeItem("chestOfKnowledge");
+  state = structuredClone(DEF);
+  currentSubject = null;
+  currentDifficulty = 0;
+  currentLevel = 0;
+  closeModal();
+  renderCoins();
+  renderClassSelector();
+  renderMap();
+  renderChest();
+  renderWheel();
+  showScreen("screen-map");
+  alert("Прогресс успешно сброшен! Начинаем заново 🏴‍☠️");
+}
+
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+renderCoins();
+renderWheel();
+renderClassSelector();
+renderMap();
+renderChest();
+
+$("shopBtn").onclick = openShop;
+$("resetBtn").onclick = resetProgress;
+$("companionBox").onclick = () => {
+  const c = getComp();
+  if(c) askNameForCompanion(c, true);
+};
+$("answerInput").addEventListener("keydown", e=>{ if(e.key==="Enter") checkAnswer(); });
+document.addEventListener("keydown", e=>{
+  if(e.key==="Escape") closeModal();
+  if(e.key==="Enter" && $("modal").classList.contains("open") && $("dailyInput")){
+    const b = $("modalBox").querySelector(".btn-primary");
+    if(b) b.click();
+  }
+});
+window.addEventListener("resize", ()=>{ if($("screen-levels").classList.contains("active")) renderLevels(); });
+</script>
+</body>
+</html>
